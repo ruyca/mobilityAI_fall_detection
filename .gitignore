@@ -85,7 +85,14 @@ cython_debug/
 
 
 # Images used during testing
-
 image_test2.jpg
 image_test.jpg
+
+# yolo11n model
 yolo11n.pt
+
+# JSON that keeps track of the danger zone. Generated each time a new zone is defined.
+danger_zone.json
+
+# Logs of falling objects
+fall_incidents.log

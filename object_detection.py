@@ -10,9 +10,11 @@ from ultralytics import YOLO
 Basic object detection using OpenCV + Ultralytics YOLO11-nano.
 Detects selected COCO classes from a USB camera and shows a live window.
 Press ESC to exit.
+
+It only detects the objects from the COCO classes defined in TARGET_CLASS_IDS.
+For other classes, no boxes will be drawn.
+For the fall detection application, use fall_detection.py instead.
 """
-
-
 
 # Target COCO classes (names -> COCO class ids)
 TARGET_CLASS_IDS = {
