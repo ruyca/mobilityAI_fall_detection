@@ -96,3 +96,6 @@ danger_zone.json
 
 # Logs of falling objects
 fall_incidents.log
+
+# Ignores incident images
+incident_images/*

@@ -359,6 +359,30 @@ def log_incident(obj, danger_zone):
         print(f"   Position: ({x:.1f}, {y:.1f})")
         print(f"   Status: Monitoring - Not in danger zone")
 
+def capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=False):
+    """Capture and save a screenshot when a fall is detected."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Create filename with incident details
+    zone_status = "DANGER" if in_danger_zone else "WARNING"
+    filename = f"incident_{timestamp}_{obj.class_name}_ID{obj.id}_{zone_status}.jpg"
+    
+    # File location
+    filename = f"incident_images/{filename}"
+
+    # Draw incident marker on the frame copy
+    frame_copy = frame.copy()
+    if len(obj.positions) > 0:
+        x, y = int(obj.positions[-1][0]), int(obj.positions[-1][1])
+        # Draw a circle at the falling object's position
+        cv2.circle(frame_copy, (x, y), 20, (0, 0, 255), 3)
+        cv2.putText(frame_copy, "FALL DETECTED", (x-50, y-25), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+    
+    # Save the screenshot
+    cv2.imwrite(filename, frame_copy)
+    print(f"   📸 Screenshot saved: {filename}")
+
 def main():
     parser = argparse.ArgumentParser(description="YOLO11 fall detection for rail safety monitoring.")
     parser.add_argument("--model", "-m", default="yolo11n.pt", help="Path or name of YOLO11 model")
@@ -459,11 +483,13 @@ def main():
                         if not obj.entered_danger_zone:
                             obj.entered_danger_zone = True
                             log_incident(obj, danger_zone)
+                            capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=True)
                     else:
                         if obj.fall_start_time and (time.time() - obj.fall_start_time) > 0.5:
                             # Log falls outside danger zone after 0.5 seconds
                             if not obj.entered_danger_zone:
                                 log_incident(obj, danger_zone)
+                                capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=False)
                                 obj.entered_danger_zone = True
             
             # Draw danger zone
