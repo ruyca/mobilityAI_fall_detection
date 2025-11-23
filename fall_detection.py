@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional
 import json
 from datetime import datetime
+import requests
 
 # Target COCO classes (names -> COCO class ids)
 TARGET_CLASS_IDS = {
@@ -382,6 +383,28 @@ def capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=False):
     # Save the screenshot
     cv2.imwrite(filename, frame_copy)
     print(f"   📸 Screenshot saved: {filename}")
+    
+    return filename
+
+def send_alert_to_backend(obj, image_path):
+    """Send alert to backend system (stub function)."""
+    # This function can be implemented to send HTTP requests or messages
+    # to a backend monitoring system or alerting service.
+
+    url = "http://backend-system.local/alert" ### change to actual endpoint
+    data = {
+        "station": "Sevilla",
+        "detected_object": obj.class_name,
+        "incident_datetime": datetime.now().isoformat()
+    }
+
+    files = {
+        'image': ('image.jpg', open(image_path, 'rb'), 'image/jpeg')
+    }
+
+    response = requests.post(url, data=data, files=files)
+    print(response.status_code, response.text)
+    
 
 def main():
     parser = argparse.ArgumentParser(description="YOLO11 fall detection for rail safety monitoring.")
@@ -474,6 +497,9 @@ def main():
             
             # Detect falls
             falling_objects = tracker.detect_falls()
+
+            # Image location
+            image_path = None
             
             # Check for new falls in danger zone
             for obj in falling_objects:
@@ -483,13 +509,15 @@ def main():
                         if not obj.entered_danger_zone:
                             obj.entered_danger_zone = True
                             log_incident(obj, danger_zone)
-                            capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=True)
+                            image_path = capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=True)
+                            send_alert_to_backend(obj, image_path)
                     else:
                         if obj.fall_start_time and (time.time() - obj.fall_start_time) > 0.5:
                             # Log falls outside danger zone after 0.5 seconds
                             if not obj.entered_danger_zone:
                                 log_incident(obj, danger_zone)
-                                capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=False)
+                                image_path = capture_incident_screenshot(frame, obj, danger_zone, in_danger_zone=False)
+                                send_alert_to_backend(obj, image_path)
                                 obj.entered_danger_zone = True
             
             # Draw danger zone
