@@ -391,7 +391,7 @@ def send_alert_to_backend(obj, image_path):
     # This function can be implemented to send HTTP requests or messages
     # to a backend monitoring system or alerting service.
 
-    url = "http://backend-system.local/alert" ### change to actual endpoint
+    url = "http://ec2-54-84-92-63.compute-1.amazonaws.com/falldetection" 
     data = {
         "station": "Sevilla",
         "detected_object": obj.class_name,
