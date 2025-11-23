@@ -259,7 +259,7 @@ class DangerZone:
             self.save_zone()
             print(f"Danger zone defined with {len(self.points)} points.")
         
-    def is_in_zone(self, point):
+    def is_in_zone(self, point):    
         """Check if a point is inside the danger zone."""
         if not self.is_defined or self.polygon is None:
             return False

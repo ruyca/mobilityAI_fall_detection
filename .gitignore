@@ -99,3 +99,7 @@ fall_incidents.log
 
 # Ignores incident images
 incident_images/*
+
+# Test POST to the API
+test_api.py 
+
